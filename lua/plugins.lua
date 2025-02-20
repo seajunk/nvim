@@ -56,6 +56,7 @@ require("lazy").setup({
     end
 
 },
+--[[
 {
     "https://github.com/nvim-tree/nvim-tree.lua",
     config = function()
@@ -66,7 +67,6 @@ require("lazy").setup({
             local function opts(desc)
                 return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
             end
-            vim.keymap.set("n", "<Cr>", api.node.open.tab)
         end
 
         -- opens buffer but keeps focus on tree
@@ -74,7 +74,7 @@ require("lazy").setup({
             api.node.open.edit(node)
             api.tree.focus()            
         end
-        vim.keymap.set("n", "<Space>", open)
+        vim.keymap.set("n", "<Cr>", open)
 
         require("nvim-tree").setup{
             renderer = {
@@ -110,25 +110,27 @@ on_attach = my_on_attach,
 	} 
 end
 },
+--]]
 {
     "https://github.com/nvim-lua/plenary.nvim",
 },
 {
     "https://github.com/nvim-treesitter/nvim-treesitter",
     config = function()
+
         require'nvim-treesitter.configs'.setup {
             -- A list of parser names, or "all" (the listed parsers MUST always be installed)
-            ensure_installed = { "c", "cpp"},
+            ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline" },
 
             -- Install parsers synchronously (only applied to `ensure_installed`)
             sync_install = false,
 
             -- Automatically install missing parsers when entering buffer
             -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-            auto_install = true,
+            --auto_install = true,
 
             -- List of parsers to ignore installing (or "all")
-            ignore_install = { "javascript" },
+            --ignore_install = { "javascript" },
 
             ---- If you need to change the installation directory of the parsers (see -> Advanced Setup)
             -- parser_install_dir = "/some/path/to/store/parsers", -- Remember to run vim.opt.runtimepath:append("/some/path/to/store/parsers")!
@@ -140,8 +142,21 @@ end
                 -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
                 -- the name of the parser)
                 -- list of language that will be disabled
-                disable = {},
+                --disable = { "c", "rust" },
                 -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
+                disable = function(lang, buf)
+                    local max_filesize = 100 * 1024 -- 100 KB
+                    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+                    if ok and stats and stats.size > max_filesize then
+                        return true
+                    end
+                end,
+
+                -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+                -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+                -- Using this option may slow down your editor, and you may see some duplicate highlights.
+                -- Instead of true it can also be a list of languages
+                --additional_vim_regex_highlighting = false,
             },
         }
     end
@@ -156,9 +171,18 @@ end
                 file_previewer = require'telescope.previewers'.vim_buffer_cat.new,
                 mappings = {
                     i = {
+                        -- using space might be a bad idea 
+                        [" "] = actions.select_default,
+                        ["\t"] = actions.close,
                         ["<F1>"] = actions.close,
                         ["<F2>"] = actions.close,
-                        ["<F3>"] = actions.close,
+                    },
+                    n = {
+                        -- using space might be a bad idea 
+                        [" "] = actions.select_default,
+                        ["\t"] = actions.close,
+                        ["<F1>"] = actions.close,
+                        ["<F2>"] = actions.close,
                     },
                 },
                 {},
@@ -166,22 +190,16 @@ end
         })
     end
 },
---[[
 {
-    "https://github.com/akinsho/bufferline.nvim",
-    config = function()
-        require("bufferline").setup{
-            options = {
-                --mode = "tabs",
-                show_buffer_icons = false,
-                show_buffer_close_icons = false,
-                show_close_icon = false,
-                show_tab_indicators = true,
-                number = "ordinal",
-                seperator_style = "slope"
-            }
-        }
-    end
+    "mrjones2014/smart-splits.nvim",
 },
---]]
+{
+    "https://github.com/mbbill/undotree",
+},
+{
+    "https://github.com/SirVer/ultisnips",
+},
+{
+  "hrsh7th/nvim-cmp",
+}
 })
