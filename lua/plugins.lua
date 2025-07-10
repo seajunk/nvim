@@ -52,6 +52,7 @@ require("lazy").setup({
     config = function()
         local lspconfig = require("lspconfig")
         lspconfig.clangd.setup({})
+        lspconfig.hls.setup({})
         --lspconfig.asm_lsp.setup({})
     end
 
@@ -172,17 +173,14 @@ end
                 mappings = {
                     i = {
                         -- using space might be a bad idea 
-                        [" "] = actions.select_default,
-                        ["\t"] = actions.close,
-                        ["<F1>"] = actions.close,
-                        ["<F2>"] = actions.close,
+                        --[" "] = actions.select_default,
+                        ["<M-f>"] = actions.close,
+                        ["<M-g>"] = actions.close,
                     },
                     n = {
                         -- using space might be a bad idea 
-                        [" "] = actions.select_default,
-                        ["\t"] = actions.close,
-                        ["<F1>"] = actions.close,
-                        ["<F2>"] = actions.close,
+                        ["<M-f>"] = actions.close,
+                        ["<M-g>"] = actions.close,
                     },
                 },
                 {},
@@ -201,5 +199,10 @@ end
 },
 {
   "hrsh7th/nvim-cmp",
+},
+{
+      'mrcjkb/haskell-tools.nvim',
+  version = '^6', -- Recommended
+  lazy = false, -- This plugin is already lazy
 }
 })
